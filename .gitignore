@@ -1,0 +1,44 @@
+# Local application and private state
+/app/
+/config/
+/archivo-local/
+/.venv/
+.env
+.env.*
+!.env.example
+*.dpapi
+*.pfx
+*.p12
+*.key
+*.pem
+*.bundle
+*.log
+
+# Generated builds and test output
+/build/cache*/
+/build/ensayo/
+/build/distribucion/
+/build/tmp*/
+/build/logs/
+/build/anteriores/
+/build/prueba-*/
+/tests/resultados/
+/.ruff_cache/
+__pycache__/
+*.py[cod]
+
+# Local hardware sessions and performance recordings
+/tests/capturas-rediseno.py
+/tests/medir-arranque.py
+/tests/medir-bandeja.py
+/tests/medir-reposo-final.py
+/tests/medir-reposo.py
+/tests/test-luz-controles.py
+/tests/test-luz-en-directo.py
+/tests/test-luz-qt.py
+/tests/windows_luz.py
+
+# Retired local output locations
+/docs/capturas/
+/auditoria/capturas/
+/rediseno/
