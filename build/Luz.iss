@@ -1,5 +1,5 @@
 #ifndef LuzVersion
-  #define LuzVersion "1.0.0"
+  #define LuzVersion "1.0.1"
 #endif
 #ifndef LuzSource
   #define LuzSource "ensayo\app"

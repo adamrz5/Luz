@@ -272,7 +272,7 @@ with tempfile.TemporaryDirectory(prefix="luz-tests-") as temp:
             assert language.maximumWidth() == 192
             language.setCurrentIndex(language.findData("es"))
             dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.StandardButton.Save).click()
-        with patch.object(w.hotkeys, "configure", return_value=["occupied"]) as configure:
+        with patch.object(w.hotkeys, "configure", return_value=["occupied"]) as configure, patch.object(w, "restart", return_value=True):
             QTimer.singleShot(50, set_language_in_preferences)
             w.desktop_settings()
             configure.assert_not_called()

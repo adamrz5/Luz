@@ -402,3 +402,9 @@ EN.update({
     "El token se guarda cifrado en este PC. Tras restablecer la bombilla puede cambiar: obtén uno nuevo y vuelve a verificar. No compartas tu token ni el QR.": "The token is stored encrypted on this PC. Resetting the bulb may change it: obtain a new token and verify again. Do not share your token or QR.",
     "Abrir Conexión": "Open Connection"
 })
+
+EN.update({
+    "Luz se reiniciará para aplicar el idioma": "Luz will restart to apply the language",
+    "Guarda o cancela la escena antes de cambiar el idioma.": "Save or cancel the scene before changing the language.",
+    "El idioma se ha guardado, pero Luz no pudo reiniciarse. Cierra y vuelve a abrir la aplicación.": "The language was saved, but Luz could not restart. Close and reopen the application.",
+})

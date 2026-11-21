@@ -13,7 +13,7 @@ from BombillaLocal import COMMAND_DEADLINE, FLOW_PRESETS, MODEL, PROFILE_FILE, c
 
 from miio import DeviceException
 
-from PySide6.QtCore import QEasingCurve, QEvent, QVariantAnimation, QLockFile, QPointF, QRectF, QSize, Qt, QTimer, QUrl, Signal
+from PySide6.QtCore import QEasingCurve, QEvent, QVariantAnimation, QLockFile, QPointF, QProcess, QRectF, QSize, Qt, QTimer, QUrl, Signal
 from PySide6.QtGui import QColor, QDesktopServices, QIcon, QKeySequence, QLinearGradient, QPainter, QPainterPath, QPen, QPixmap, QShortcut
 from PySide6.QtWidgets import (
     QAbstractButton, QApplication, QButtonGroup, QCheckBox, QComboBox, QCompleter, QDialog, QDialogButtonBox, QFileDialog, QFormLayout, QFrame, QGridLayout,
@@ -1700,6 +1700,13 @@ class Window(QWidget):
             error.setText(message)
             error.show()
 
+        restart_notice = label(tr("Luz se reiniciará para aplicar el idioma"), "muted")
+        restart_notice.setWordWrap(True)
+        restart_notice.setVisible(language.currentData() != current_language())
+        language.currentIndexChanged.connect(
+            lambda: restart_notice.setVisible(language.currentData() != current_language()))
+        form.addRow(restart_notice)
+
         buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Save | QDialogButtonBox.StandardButton.Cancel)
         buttons.button(QDialogButtonBox.StandardButton.Save).setText(tr("Guardar"))
         buttons.button(QDialogButtonBox.StandardButton.Save).setObjectName("primary")
@@ -1711,6 +1718,13 @@ class Window(QWidget):
         previous = self.shortcut_values()
 
         def apply():
+            language_changed = current_language() != language.currentData()
+            if language_changed and (self.future or self.pending or self.before_toggle or self.configuring):
+                mostrar_error(tr("Espera a que termine el cambio en curso."))
+                return
+            if language_changed and self.editing_scene is not None:
+                mostrar_error(tr("Guarda o cancela la escena antes de cambiar el idioma."))
+                return
             sequences = tuple(entry.sequence for entry in entries)
             try:
                 parsed = [shortcut_parts(sequence) for sequence in sequences if sequence]
@@ -1760,8 +1774,9 @@ class Window(QWidget):
                 mostrar_error(tr("No se pudieron guardar las preferencias."))
                 return
             self.apply_theme()
-            if current_language() != language.currentData():
-                self.note.setText(tr("El idioma se aplicará la próxima vez que abras Luz. Cerrar ahora saldrá de la aplicación."))
+            if language_changed and not self.restart():
+                mostrar_error(tr("El idioma se ha guardado, pero Luz no pudo reiniciarse. Cierra y vuelve a abrir la aplicación."))
+                return
             dialog.accept()
 
         buttons.accepted.connect(apply)
@@ -1889,6 +1904,17 @@ class Window(QWidget):
         self.activateWindow()
         self.start_heartbeat()
         self.refresh()
+
+    def restart(self):
+        arguments = [] if getattr(sys, "frozen", False) else [str(Path(__file__).resolve())]
+        arguments.append("--restart")
+        if "--sin-bandeja" in sys.argv:
+            arguments.append("--sin-bandeja")
+        started, _ = QProcess.startDetached(sys.executable, arguments, str(Path(sys.executable).parent))
+        if not started:
+            return False
+        self.quit_desktop()
+        return True
 
     def quit_desktop(self):
         self.exiting = True
@@ -2685,7 +2711,8 @@ def main():
     oculto = "--oculto" in sys.argv
     manage_desktop = "--sin-bandeja" not in sys.argv
     desktop_owner = desktop_lock() if sys.platform == "win32" and manage_desktop else None
-    if not lock.tryLock(0) or (desktop_owner is not None and not desktop_owner.tryLock(0)):
+    lock_timeout = 15000 if "--restart" in sys.argv else 0
+    if not lock.tryLock(lock_timeout) or (desktop_owner is not None and not desktop_owner.tryLock(lock_timeout)):
         if not oculto:
             QMessageBox.information(None, "Luz", tr("Luz ya está abierta. Búscala junto al reloj de Windows."))
         return 0

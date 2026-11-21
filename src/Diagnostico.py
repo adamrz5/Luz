@@ -12,7 +12,7 @@ from BombillaLocal import IP_FILE, PROFILE_FILE, STATE_DIR, TOKEN_FILE, capabili
 from Escenas import SCENE_FILE
 from Idioma import tr
 
-LUZ_VERSION = "1.0.0"
+LUZ_VERSION = "1.0.1"
 EVENTOS = {
     "check": {"ok", "recovered", "unconfigured", "not-found", "authentication", "probable-token", "invalid-response", "identity", "timeout", "connection"},
     "error": {"not-found", "authentication", "probable-token", "invalid-response", "identity", "timeout", "connection", "unsupported", "group", "discovery", "shortcut-unregistered", "shortcut-command"},
